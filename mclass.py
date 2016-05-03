@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import mcgi
 import mtools
 from mconfig import waves
@@ -433,18 +435,18 @@ class VisualPav(Pav):
 	
 	def __str__(self):
 		return "[VisualPav] " + super(VisualPav, self).__str__() + \
-			"\nAnimation angle: " + self.animaion_angle "°"+ \
-			"\nLine width: " + self.line_width + " px" + \
-			"\nLine speed: " + self.line_speed + " px/sec" + \
+			"\nAnimation angle: " +  str(self.animaion_angle) +"°"+ \
+			"\nLine width: " +  str(self.line_width) + " px" + \
+			"\nLine speed: " +  str(self.line_speed) + " px/sec" + \
 			"\nStim length: " + str(self.stim_length) +" sec"
 	
 	def html(self):
 		return super(VisualPav, self).html() +\
 			"<p>" +\
 			"<b>Stimulus type: </b> Visual" +\
-			"<br><b>Positive animation: </b>" + self.animaion_angle +"°"+ \
-			"<br><b>Line width: </b>" + self.line_width +" px"+ \
-			"<br><b>Line speed: </b>" + self.line_speed +" px/sec"+ \
+			"<br><b>Positive animation: </b>" +  str(self.animaion_angle) +"°"+ \
+			"<br><b>Line width: </b>" +  str(self.line_width) +" px"+ \
+			"<br><b>Line speed: </b>" +  str(self.line_speed) +" px/sec"+ \
 			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"
 
 	def passArgs(self, form):
@@ -1051,10 +1053,10 @@ class VisualGng(Gng):
 	
 	def __str__(self):
 		return "[VisualGng] " + super(VisualGng, self).__str__() + \
-			"\nNegative animation: " + self.negative_animation "°"+ \
-			"\nPositive animation: " + self.positive_animation "°"+ \
-			"\nLine width: " + self.line_width + " px" + \
-			"\nLine speed: " + self.line_speed + " px/sec" + \
+			"\nNegative animation: " +  str(self.negative_animation) +"°"+ \
+			"\nPositive animation: " +  str(self.positive_animation) +"°"+ \
+			"\nLine width: " +  str(self.line_width) + " px" + \
+			"\nLine speed: " +  str(self.line_speed) + " px/sec" + \
 			"\nStim length: " + str(self.stim_length) +" sec"
 	
 	def html(self):
