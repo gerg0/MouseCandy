@@ -951,28 +951,98 @@ class AudioGng(Gng):
 		print "</fieldset>"		
 		
 class VisualGng(Gng):
-	form = "visualgng_form.html"
 	def __init__ (self, name, notes, video, \
-			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random, \
-			positive_animation, stim_length):
+			action_count, positive_count, grace_preiod, active_period, idle_period, extra_time, reset_on_random, \
+			positive_animation, negative_animation, line_width, line_speed, stim_length):
 	
 		super(VisualGng, self).__init__(name, notes, video, \
 			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random)
 			
 		self.positive_animation = positive_animation
-		self.negative_animation = "horizontal" if positive_animation=="vertical" else "vertical"
+		self.negative_animation = negative_animation
+		
+		self.line_width = line_width
+		self.line_speed = line_speed
 		self.stim_length = stim_length
 	
 	def __str__(self):
 		return "[VisualGng] " + super(VisualGng, self).__str__() + \
-			"\nPositive animation: " + self.positive_animation + \
-			"\nNegative animation: " + self.negative_animation + \
+			"\nNegative animation: " + self.negative_animation "°"+ \
+			"\nPositive animation: " + self.positive_animation "°"+ \
+			"\nLine width: " + self.line_width + " px" + \
+			"\nLine speed: " + self.line_speed + " px/sec" + \
 			"\nStim length: " + str(self.stim_length) +" sec"
 	
 	def html(self):
 		return super(VisualGng, self).html() +\
 			"<p>" +\
 			"<b>Stimulus type: </b> Visual" +\
-			"<br><b>Positive animation: </b>" + self.positive_animation + \
-			"<br><b>Negative animation: </b>" + self.negative_animation + \
+			"<br><b>Positive animation: </b>" + self.positive_animation +"°"+ \
+			"<br><b>Negative animation: </b>" + self.negative_animation +"°"+ \
+			"<br><b>Line width: </b>" + self.line_width +" px"+ \
+			"<br><b>Line speed: </b>" + self.line_speed +" px/sec"+ \
 			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"
+
+	def passArgs(self, form):
+		super(VisualGng,self).passArgs(form)
+		
+		form.addArgPass("visual", "stim_type")
+		
+		form.addArgPass(self.positive_animation, "positive_animation")
+		form.addArgPass(self.negative_animation, "negative_animation")
+		
+		form.addArgPass(self.line_width, "line_width")
+		form.addArgPass(self.line_speed, "line_speed")
+		
+		form.addArgPass(self.stim_length, "stim_length")
+		
+	def run(self):
+		
+		from subprocess import call
+		
+		self.positive_stimulus = call(["./visual_stim", self.positive_animation, self.line_width, self.line_speed])
+		self.negative_stimulus = call(["./visual_stim", self.negative_animation, self.line_width, self.line_speed])
+		
+		#Run Go/No-Go conditioning with the tone as the stimulus
+		super(VisualGng,self).run()
+		
+	@staticmethod
+	def showForm(positive_animation=0, negative_animation=90, line_width=100, line_speed=100, stim_length=2.0, parent=None):
+		f = mcgi.Form("step_4.py")
+
+		if positive_animation is None:
+			f.addInput("Positive animation angle", "positive_animation", warning="Please set this to an angle in degrees", unit="°")	
+		else:
+			f.addInput("Positive animation angle", "positive_animation", value=str(stim_length), unit="°")	
+			
+		if negative_animation is None:
+			f.addInput("Negative animation angle", "negative_animation", warning="Please set this to an angle in degrees", unit="°")	
+		else:
+			f.addInput("Negative animation angle", "negative_animation", value=str(stim_length), unit="°")	
+			
+		f.addLabel("<i>The default animation (0°) is left to right. Values set here will be added counter clockwise.</i>")
+		
+		if line_width is None:
+			f.addInput("Line width", "line_width", warning="Please set this to a width in pixels", unit="px")	
+		else:
+			f.addInput("Line width", "line_width", value=str(stim_length), unit="px")	
+
+		if line_speed is None:
+			f.addInput("Line speed", "line_speed", warning="Please set this to a speed in pixels/second", unit="px/sec")	
+		else:
+			f.addInput("Line speed", "line_speed", value=str(stim_length), unit="px/sec")			
+		
+		if stim_length is None:
+			f.addInput("Length", "stim_length", warning="Please set this to a time in seconds", unit="sec")	
+		else:
+			f.addInput("Length", "stim_length", value=str(stim_length), unit="sec")			
+		
+		
+		print "<fieldset><legend>Visual parameters</legend><p>"
+		
+		#Pass the properties we already know about from last step.	
+		if parent is not None: parent.passArgs(f)
+		f.addArgPass("visual", "stim_type")
+		
+		f.display()
+		print "</fieldset>"		
