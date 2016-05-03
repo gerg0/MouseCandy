@@ -730,6 +730,21 @@ class OlfactoryGng(Gng):
 		form.addArgPass(self.negative_valve, "negative_valve")
 		form.addArgPass(self.blank_valve, "blank_valve")
 		form.addArgPass(self.stim_length, "stim_length")
+	
+	def run(self):
+		
+		import mvalve
+		import mconfig
+		pvalve = mvalve.Valve(mconfig.odor_pin[self.positive_valve],pulse_length=self.stim_length)
+		nvalve = mvalve.Valve(mconfig.odor_pin[self.negative_valve],pulse_length=self.stim_length)
+		bvalve = mvalve.Valve(mconfig.odor_pin[self.blank_valve],pulse_length=self.stim_length)
+		
+		self.positive_stimulus = lambda:[f() for f in [pvalve.pulse, bvalve.pulse]]
+		self.negative_stimulus = lambda:[f() for f in [nvalve.pulse, bvalve.pulse]]
+		
+		#Run Go/No-Go conditioning with the valve opening as the stimulus
+		super(OlfactoryGng,self).run()
+		
 		
 	@staticmethod
 	def showForm(positive_valve="A", negative_valve="B", blank_valve="C", stim_length=1.5, parent=None):
