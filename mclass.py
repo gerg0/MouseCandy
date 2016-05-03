@@ -418,7 +418,91 @@ class AudioPav(Pav):
 		
 		f.display()
 		print "</fieldset>"	
+
+class VisualPav(Pav):
+	def __init__(self, name, notes, video, \
+			action_count, wait_time_min, wait_time_max, \
+			animaion_angle, line_width, line_speed, stim_length):
 			
+		super(VisualPav, self).__init__(name, notes, video, action_count, wait_time_min, wait_time_max)
+		
+		self.animaion_angle = animaion_angle
+		self.line_width = line_width
+		self.line_speed = line_speed
+		self.stim_length = stim_length
+	
+	def __str__(self):
+		return "[VisualPav] " + super(VisualPav, self).__str__() + \
+			"\nAnimation angle: " + self.animaion_angle "°"+ \
+			"\nLine width: " + self.line_width + " px" + \
+			"\nLine speed: " + self.line_speed + " px/sec" + \
+			"\nStim length: " + str(self.stim_length) +" sec"
+	
+	def html(self):
+		return super(VisualPav, self).html() +\
+			"<p>" +\
+			"<b>Stimulus type: </b> Visual" +\
+			"<br><b>Positive animation: </b>" + self.animaion_angle +"°"+ \
+			"<br><b>Line width: </b>" + self.line_width +" px"+ \
+			"<br><b>Line speed: </b>" + self.line_speed +" px/sec"+ \
+			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"
+
+	def passArgs(self, form):
+		super(VisualPav,self).passArgs(form)
+		
+		form.addArgPass("visual", "stim_type")
+		
+		form.addArgPass(self.animaion_angle, "animaion_angle")
+		
+		form.addArgPass(self.line_width, "line_width")
+		form.addArgPass(self.line_speed, "line_speed")
+		
+		form.addArgPass(self.stim_length, "stim_length")
+		
+	def run(self):
+		
+		from subprocess import call
+		
+		self.stimulus = lambda: call(["./visual_stim", self.animaion_angle, self.line_width, self.line_speed])
+		
+		#Run Pavlovian conditioning with the animation as the stimulus
+		super(VisualPav,self).run()
+		
+	@staticmethod
+	def showForm(animaion_angle=0, line_width=100, line_speed=100, stim_length=2.0, parent=None):
+		f = mcgi.Form("step_4.py")
+
+		if animaion_angle is None:
+			f.addInput("Animation angle", "animaion_angle", warning="Please set this to an angle in degrees", unit="°")	
+		else:
+			f.addInput("Animation angle", "animaion_angle", value=str(stim_length), unit="°")	
+	
+		f.addLabel("<i>The default animation (0°) is left to right. Values set here will be added counter clockwise.</i>")
+		
+		if line_width is None:
+			f.addInput("Line width", "line_width", warning="Please set this to a width in pixels", unit="px")	
+		else:
+			f.addInput("Line width", "line_width", value=str(stim_length), unit="px")	
+
+		if line_speed is None:
+			f.addInput("Line speed", "line_speed", warning="Please set this to a speed in pixels/second", unit="px/sec")	
+		else:
+			f.addInput("Line speed", "line_speed", value=str(stim_length), unit="px/sec")			
+		
+		if stim_length is None:
+			f.addInput("Length", "stim_length", warning="Please set this to a time in seconds", unit="sec")	
+		else:
+			f.addInput("Length", "stim_length", value=str(stim_length), unit="sec")			
+		
+		
+		print "<fieldset><legend>Visual parameters</legend><p>"
+		
+		#Pass the properties we already know about from last step.	
+		if parent is not None: parent.passArgs(f)
+		f.addArgPass("visual", "stim_type")
+		
+		f.display()
+		print "</fieldset>"				
 			
 class Gng(Project):
 	
@@ -691,7 +775,7 @@ class Gng(Project):
 		print "<fieldset><legend>Go/NoGo parameters</legend><p>"
 		f.display()
 		print "</fieldset>"
-		
+
 class OlfactoryGng(Gng):
 
 	def __init__ (self, name, notes, video, \
@@ -948,8 +1032,8 @@ class AudioGng(Gng):
 		f.addArgPass("audio", "stim_type")
 		
 		f.display()
-		print "</fieldset>"		
-		
+		print "</fieldset>"	
+	
 class VisualGng(Gng):
 	def __init__ (self, name, notes, video, \
 			action_count, positive_count, grace_preiod, active_period, idle_period, extra_time, reset_on_random, \
@@ -1000,8 +1084,8 @@ class VisualGng(Gng):
 		
 		from subprocess import call
 		
-		self.positive_stimulus = call(["./visual_stim", self.positive_animation, self.line_width, self.line_speed])
-		self.negative_stimulus = call(["./visual_stim", self.negative_animation, self.line_width, self.line_speed])
+		self.positive_stimulus = lambda: call(["./visual_stim", self.positive_animation, self.line_width, self.line_speed])
+		self.negative_stimulus = lambda: call(["./visual_stim", self.negative_animation, self.line_width, self.line_speed])
 		
 		#Run Go/No-Go conditioning with the tone as the stimulus
 		super(VisualGng,self).run()
