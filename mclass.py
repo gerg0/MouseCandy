@@ -284,7 +284,7 @@ class OlfactoryPav(Pav):
 		
 		form.addArgPass("olfactory", "stim_type")
 		form.addArgPass(self.odor_valve_name, "odor_valve_name")
-
+		form.addArgPass(self.blank_valve, "blank_valve")
 		form.addArgPass(self.stim_length, "stim_length")	
 	
 	def run(self):
