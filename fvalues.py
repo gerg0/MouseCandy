@@ -72,8 +72,8 @@ else:
 	negative_tone_hz = getInt("negative_tone_hz")
 
 #Visual General
-line_width = getFloat("line_width")
-line_speed = getFloat("line_speed")
+line_width = getInt("line_width")
+line_speed = getInt("line_speed")
 
 #Visual PAV 
 animation_angle = getFloat("animation_angle")

@@ -22,9 +22,10 @@ if fvalues.ptype == "gng":
 
 #Check for PAV specific errors
 if fvalues.ptype == "pav":
+	if fvalues.action_count is None: err = True
 	if fvalues.wait_time_min is None: err = True
 	if fvalues.wait_time_max is None: err = True
-	if fvalues.action_count is None: err = True
+	
 	
 #Display last form if there were any errors
 if err:

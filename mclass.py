@@ -12,10 +12,8 @@ class Project(object):
 		else:
 			self.notes = notes
 		
-		if video == "on" :
-			self.video = "on"
-		else:
-			self.video = "off"
+		self.video = video
+		if self.video != "on": self.video = "off"
 		self.stim_length = 1
 				
 	def __str__(self):
@@ -62,12 +60,8 @@ class Project(object):
 		progress(0)
 		
 	@staticmethod
-	def showForm(name="", ptype="gng", notes="", video="off", err=""):
-		if name is None: name = ""
-		if ptype is None: ptype = ""
+	def showForm(name="", ptype="gng", notes="", video="off"):
 		if notes is None: notes = ""
-		if video is None: video = ""
-		
 		f = mcgi.Form("step_2.py")
 
 		typeselect = mcgi.Form.Select("Type","ptype")
@@ -77,7 +71,7 @@ class Project(object):
 
 		f.addSelect(typeselect)
 
-		if err == "noname":
+		if name is None:
 			f.addInput("Name", "name", warning="Please name your project!")
 		else:
 			f.addInput("Name", "name", value=name)
@@ -271,8 +265,6 @@ class OlfactoryPav(Pav):
 		self.blank_valve = blank_valve
 		self.stim_length = stim_length
 		
-		
-		
 	def __str__(self):
 		return "[OlfactoryPav] " + super(OlfactoryPav,self).__str__() + \
 			"\nOdor valve: " + self.odor_valve_name + \
@@ -325,6 +317,11 @@ class OlfactoryPav(Pav):
 		b.addOption(title="E", value="E", checked=[False, True][blank_valve=="E"])
 
 		f.addRadio(b)
+		
+		if odor_valve_name == blank_valve:
+			f.addLabel('<font color="red">'+\
+			"The fragrance and the blank valve cannot be the same.<br>"\
+			+'</font>')
 		
 		if stim_length is None:
 			f.addInput("Length", "stim_length", warning="Please set this to a time in seconds", unit="sec")	
@@ -457,7 +454,7 @@ class VisualPav(Pav):
 		return super(VisualPav, self).html() +\
 			"<p>" +\
 			"<b>Stimulus type: </b> Visual" +\
-			"<br><b>Positive animation: </b>" +  str(self.animation_angle) +"°"+ \
+			"<br><b>Animation angle: </b>" +  str(self.animation_angle) +"°"+ \
 			"<br><b>Line width: </b>" +  str(self.line_width) +" px"+ \
 			"<br><b>Line speed: </b>" +  str(self.line_speed) +" px/sec"+ \
 			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"
@@ -536,8 +533,8 @@ class Gng(Project):
 		
 		self.extra_time = extra_time
 		self.reset_on_random = reset_on_random
-
-		
+		if self.reset_on_random != "on": self.reset_on_random = "off"
+	
 	
 	def __str__(self):
 		return "[GNG] "+ super(Gng,self).__str__() + \
@@ -1066,8 +1063,8 @@ class VisualGng(Gng):
 	
 	def __str__(self):
 		return "[VisualGng] " + super(VisualGng, self).__str__() + \
-			"\nNegative animation: " +  str(self.negative_animation) +"°"+ \
-			"\nPositive animation: " +  str(self.positive_animation) +"°"+ \
+			"\nNegative animation angle: " +  str(self.negative_animation) +"°"+ \
+			"\nPositive animation angle: " +  str(self.positive_animation) +"°"+ \
 			"\nLine width: " +  str(self.line_width) + " px" + \
 			"\nLine speed: " +  str(self.line_speed) + " px/sec" + \
 			"\nStim length: " + str(self.stim_length) +" sec"
@@ -1106,7 +1103,7 @@ class VisualGng(Gng):
 		super(VisualGng,self).run()
 		
 	@staticmethod
-	def showForm(positive_animation=0, negative_animation=90, line_width=100, line_speed=100, stim_length=2.0, parent=None):
+	def showForm(positive_animation=0.0, negative_animation=90.0, line_width=100, line_speed=100, stim_length=2.0, parent=None):
 		f = mcgi.Form("step_4.py")
 
 		if positive_animation is None:
@@ -1120,6 +1117,11 @@ class VisualGng(Gng):
 			f.addInput("Negative animation angle", "negative_animation", value=str(negative_animation), unit="°")	
 			
 		f.addLabel("<i>The default animation (0°) is left to right. Values set here will be added counter clockwise.</i>")
+		
+		if positive_animation == negative_animation:
+			f.addLabel('<font color="red">'+\
+			"<br>The positive and negative animation angle cannot be the same.<br>"\
+			+'</font>')
 		
 		if line_width is None:
 			f.addInput("Line width", "line_width", warning="Please set this to a width in pixels", unit="px")	

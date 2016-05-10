@@ -4,9 +4,10 @@ import fvalues
 
 mcgi.frame()
 
+#Check for errors (Only possible error is an empty name field)
 if fvalues.name is None:
 	print ('<h4>Failed to move on...</h4>')
-	mclass.Project.showForm(ptype=fvalues.ptype, notes=fvalues.notes, video=fvalues.video, err="noname")
+	mclass.Project.showForm(fvalues.name, fvalues.ptype, fvalues.notes, fvalues.video)
 	
 else:
 	print ('<h4>Step 2/3</h4>')
