@@ -122,6 +122,7 @@ class ControlPanel(object):
 		lcd.home()
 	
 	def up_buttonpress(self):
+		print "LCD up"
 		if self.mode == "text":
 			if self.current_line > 0:
 				self.current_line -= 1
@@ -130,6 +131,14 @@ class ControlPanel(object):
 				self.refresh()
 	
 	def down_buttonpress(self):
+		print "LCD down"
+		if self.mode == "menu":
+			if self.current_line < len(self.options)-2:
+				self.current_line += 1
+				self.top_line = self.text[self.current_line]
+				self.bottom_line = self.text[self.current_line+1]
+				self.refresh()
+				
 		if self.mode == "text":
 			if self.current_line < len(self.text)-2:
 				self.current_line += 1
@@ -138,20 +147,23 @@ class ControlPanel(object):
 				self.refresh()
 		
 	def left_buttonpress(self):
+		print "LCD left"
 		if self.mode == "text":
 			if self.shift > 0: 
 				lcd.move_right()
 				self.shift -= 1	
 		
 	def right_buttonpress(self):
+		print "LCD right"
 		if self.mode == "text":
 			if (len(self.top_line)-self.shift > 16) or (len(self.bottom_line)-self.shift > 16): 
 				lcd.move_left()
 				self.shift += 1	
 		
 	def select_buttonpress(self):
-		if self.mode == "animation":
-			self.display_text()
+		print "LCD select"
+		if self.mode == "text":
+			self.menu()
 	
 	def check_inputs(self):
 		#If UP is pressed
