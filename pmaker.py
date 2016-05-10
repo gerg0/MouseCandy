@@ -24,7 +24,7 @@ def make_project():
 		if fvalues.stim_type == "olfactory":
 			p = mclass.OlfactoryPav(fvalues.name, fvalues.notes, fvalues.video, \
 					fvalues.action_count, fvalues.wait_time_min, fvalues.wait_time_max,	 \
-					fvalues.odor_valve_name, fvalues.stim_length)		
+					fvalues.odor_valve_name, fvalues.blank_valve, fvalues.stim_length)		
 		
 		if fvalues.stim_type == "audio":
 			p = mclass.AudioPav(fvalues.name, fvalues.notes, fvalues.video, \

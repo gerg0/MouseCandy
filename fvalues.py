@@ -40,7 +40,7 @@ extra_time = getFloat("extra_time")
 reset_on_random = getStr("reset_on_random")
 
 #Olfactory General
-blank_valve = form.getvalue("blank_valve")
+blank_valve = getStr("blank_valve")
 
 #Olfactory PAV
 odor_valve_name = getStr("odor_valve_name")
@@ -82,6 +82,5 @@ animation_angle = getFloat("animation_angle")
 positive_animation = getFloat("positive_animation")
 negative_animation = getFloat("negative_animation")
 
-
 #Get filename for saving
-filename = form.getvalue("filename")
+filename = getStr("filename")

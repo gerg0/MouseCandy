@@ -264,17 +264,19 @@ class Pav(Project):
 class OlfactoryPav(Pav):
 	def __init__(self, name, notes, video, \
 			action_count, wait_time_min, wait_time_max, \
-			odor_valve_name, stim_length):	
+			odor_valve_name, blank_valve, stim_length):	
 
 		super(OlfactoryPav, self).__init__(name, notes, video, action_count, wait_time_min, wait_time_max)
 		self.odor_valve_name = odor_valve_name
+		self.blank_valve = blank_valve
 		self.stim_length = stim_length
 		
-		self.odor_valve = mvalve.Valve(pin = mconfig.odor_pin[odor_valve_name], pulse_length = mconfig.stim_length)
-	
+		
+		
 	def __str__(self):
 		return "[OlfactoryPav] " + super(OlfactoryPav,self).__str__() + \
 			"\nOdor valve: " + self.odor_valve_name + \
+			"\nBlank valve: " + self.blank_valve + \
 			"\nStim length: " + str(self.stim_length) +" sec"
 	
 	def html(self):	
@@ -282,6 +284,7 @@ class OlfactoryPav(Pav):
 			"<p>" +\
 			"<b>Stimulus type: </b> Olfactory" +\
 			"<br><b>Odor valve: </b>" + self.odor_valve_name +\
+			"<br><b>Blank valve: </b>" + self.blank_valve +\
 			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"	
 	
 	def passArgs(self, form):
@@ -293,25 +296,35 @@ class OlfactoryPav(Pav):
 		form.addArgPass(self.stim_length, "stim_length")	
 	
 	def run(self):
-
-		self.stimulus = getattr(self.odor_valve, 'pulse')	#self.stimulus() will execute self.odor_valve.pulse()	
+		ovalve = mvalve.Valve(mconfig.odor_pin[self.odor_valve_name], pulse_length = self.stim_length)
+		bvalve = mvalve.Valve(mconfig.odor_pin[self.blank_valve],pulse_length=self.stim_length)
 		
+		self.stimulus = lambda:[f() for f in [ovalve.pulse, bvalve.pulse]]
 		#Run Pavlovian conditioning with the odor valve pulse as the stimulus
 		super(OlfactoryPav,self).run()
 
 		
 	@staticmethod
-	def showForm(odor_valve_name="A", stim_length=1.5, parent=None):
+	def showForm(odor_valve_name="A", blank_valve="B", stim_length=1.5, parent=None):
 		f = mcgi.Form("step_4.py")
 		
-		r = mcgi.Form.Radio(title="Odor valve", name="odor_valve_name")
-		r.addOption(title="A", value="A", checked=[False, True][odor_valve_name=="A"])
-		r.addOption(title="B", value="B", checked=[False, True][odor_valve_name=="B"])
-		r.addOption(title="C", value="C", checked=[False, True][odor_valve_name=="C"])
-		r.addOption(title="D", value="D", checked=[False, True][odor_valve_name=="D"])
-		r.addOption(title="E", value="E", checked=[False, True][odor_valve_name=="E"])
+		o = mcgi.Form.Radio(title="Odor valve", name="odor_valve_name")
+		o.addOption(title="A", value="A", checked=[False, True][odor_valve_name=="A"])
+		o.addOption(title="B", value="B", checked=[False, True][odor_valve_name=="B"])
+		o.addOption(title="C", value="C", checked=[False, True][odor_valve_name=="C"])
+		o.addOption(title="D", value="D", checked=[False, True][odor_valve_name=="D"])
+		o.addOption(title="E", value="E", checked=[False, True][odor_valve_name=="E"])
 
-		f.addRadio(r)
+		f.addRadio(o)
+		
+		b = mcgi.Form.Radio(title="Blank valve", name="blank_valve")
+		b.addOption(title="A", value="A", checked=[False, True][blank_valve=="A"])
+		b.addOption(title="B", value="B", checked=[False, True][blank_valve=="B"])
+		b.addOption(title="C", value="C", checked=[False, True][blank_valve=="C"])
+		b.addOption(title="D", value="D", checked=[False, True][blank_valve=="D"])
+		b.addOption(title="E", value="E", checked=[False, True][blank_valve=="E"])
+
+		f.addRadio(b)
 		
 		if stim_length is None:
 			f.addInput("Length", "stim_length", warning="Please set this to a time in seconds", unit="sec")	
