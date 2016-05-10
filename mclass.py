@@ -72,7 +72,7 @@ class Project(object):
 
 		typeselect = mcgi.Form.Select("Type","ptype")
 		typeselect.addOption("Go/No-Go", "gng", selected=[False, True][ptype=="gng"])
-		typeselect.addOption("Discrimination", "dsc", selected=[False, True][ptype=="dsc"])
+		#typeselect.addOption("Discrimination", "dsc", selected=[False, True][ptype=="dsc"])
 		typeselect.addOption("Pavlovian", "pav", selected=[False, True][ptype=="pav"])
 
 		f.addSelect(typeselect)
@@ -305,11 +305,11 @@ class OlfactoryPav(Pav):
 		f = mcgi.Form("step_4.py")
 		
 		r = mcgi.Form.Radio(title="Odor valve", name="odor_valve_name")
-		r.addOption(title="A", value="A", checked=[False, True][positive_valve=="A"])
-		r.addOption(title="B", value="B", checked=[False, True][positive_valve=="B"])
-		r.addOption(title="C", value="C", checked=[False, True][positive_valve=="C"])
-		r.addOption(title="D", value="D", checked=[False, True][positive_valve=="D"])
-		r.addOption(title="E", value="E", checked=[False, True][positive_valve=="E"])
+		r.addOption(title="A", value="A", checked=[False, True][odor_valve_name=="A"])
+		r.addOption(title="B", value="B", checked=[False, True][odor_valve_name=="B"])
+		r.addOption(title="C", value="C", checked=[False, True][odor_valve_name=="C"])
+		r.addOption(title="D", value="D", checked=[False, True][odor_valve_name=="D"])
+		r.addOption(title="E", value="E", checked=[False, True][odor_valve_name=="E"])
 
 		f.addRadio(r)
 		
@@ -424,18 +424,18 @@ class AudioPav(Pav):
 class VisualPav(Pav):
 	def __init__(self, name, notes, video, \
 			action_count, wait_time_min, wait_time_max, \
-			animaion_angle, line_width, line_speed, stim_length):
+			animation_angle, line_width, line_speed, stim_length):
 			
 		super(VisualPav, self).__init__(name, notes, video, action_count, wait_time_min, wait_time_max)
 		
-		self.animaion_angle = animaion_angle
+		self.animation_angle = animation_angle
 		self.line_width = line_width
 		self.line_speed = line_speed
 		self.stim_length = stim_length
 	
 	def __str__(self):
 		return "[VisualPav] " + super(VisualPav, self).__str__() + \
-			"\nAnimation angle: " +  str(self.animaion_angle) +"°"+ \
+			"\nAnimation angle: " +  str(self.animation_angle) +"°"+ \
 			"\nLine width: " +  str(self.line_width) + " px" + \
 			"\nLine speed: " +  str(self.line_speed) + " px/sec" + \
 			"\nStim length: " + str(self.stim_length) +" sec"
@@ -444,7 +444,7 @@ class VisualPav(Pav):
 		return super(VisualPav, self).html() +\
 			"<p>" +\
 			"<b>Stimulus type: </b> Visual" +\
-			"<br><b>Positive animation: </b>" +  str(self.animaion_angle) +"°"+ \
+			"<br><b>Positive animation: </b>" +  str(self.animation_angle) +"°"+ \
 			"<br><b>Line width: </b>" +  str(self.line_width) +" px"+ \
 			"<br><b>Line speed: </b>" +  str(self.line_speed) +" px/sec"+ \
 			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"
@@ -454,7 +454,7 @@ class VisualPav(Pav):
 		
 		form.addArgPass("visual", "stim_type")
 		
-		form.addArgPass(self.animaion_angle, "animaion_angle")
+		form.addArgPass(self.animation_angle, "animation_angle")
 		
 		form.addArgPass(self.line_width, "line_width")
 		form.addArgPass(self.line_speed, "line_speed")
@@ -465,31 +465,31 @@ class VisualPav(Pav):
 		
 		from subprocess import call
 		
-		self.stimulus = lambda: call(["./visual_stim", self.animaion_angle, self.line_width, self.line_speed])
+		self.stimulus = lambda: call(["./visual_stim", self.animation_angle, self.line_width, self.line_speed])
 		
 		#Run Pavlovian conditioning with the animation as the stimulus
 		super(VisualPav,self).run()
 		
 	@staticmethod
-	def showForm(animaion_angle=0, line_width=100, line_speed=100, stim_length=2.0, parent=None):
+	def showForm(animation_angle=0, line_width=100, line_speed=100, stim_length=2.0, parent=None):
 		f = mcgi.Form("step_4.py")
 
-		if animaion_angle is None:
-			f.addInput("Animation angle", "animaion_angle", warning="Please set this to an angle in degrees", unit="°")	
+		if animation_angle is None:
+			f.addInput("Animation angle", "animation_angle", warning="Please set this to an angle in degrees", unit="°")	
 		else:
-			f.addInput("Animation angle", "animaion_angle", value=str(stim_length), unit="°")	
+			f.addInput("Animation angle", "animation_angle", value=str(animation_angle), unit="°")	
 	
 		f.addLabel("<i>The default animation (0°) is left to right. Values set here will be added counter clockwise.</i>")
 		
 		if line_width is None:
 			f.addInput("Line width", "line_width", warning="Please set this to a width in pixels", unit="px")	
 		else:
-			f.addInput("Line width", "line_width", value=str(stim_length), unit="px")	
+			f.addInput("Line width", "line_width", value=str(line_width), unit="px")	
 
 		if line_speed is None:
 			f.addInput("Line speed", "line_speed", warning="Please set this to a speed in pixels/second", unit="px/sec")	
 		else:
-			f.addInput("Line speed", "line_speed", value=str(stim_length), unit="px/sec")			
+			f.addInput("Line speed", "line_speed", value=str(line_speed), unit="px/sec")			
 		
 		if stim_length is None:
 			f.addInput("Length", "stim_length", warning="Please set this to a time in seconds", unit="sec")	
@@ -1063,10 +1063,10 @@ class VisualGng(Gng):
 		return super(VisualGng, self).html() +\
 			"<p>" +\
 			"<b>Stimulus type: </b> Visual" +\
-			"<br><b>Positive animation: </b>" + self.positive_animation +"°"+ \
-			"<br><b>Negative animation: </b>" + self.negative_animation +"°"+ \
-			"<br><b>Line width: </b>" + self.line_width +" px"+ \
-			"<br><b>Line speed: </b>" + self.line_speed +" px/sec"+ \
+			"<br><b>Positive animation: </b>" + str(self.positive_animation) +"°"+ \
+			"<br><b>Negative animation: </b>" + str(self.negative_animation) +"°"+ \
+			"<br><b>Line width: </b>" + str(self.line_width) +" px"+ \
+			"<br><b>Line speed: </b>" + str(self.line_speed) +" px/sec"+ \
 			"<br><b>Stim length: </b>" + str(self.stim_length) +" sec"
 
 	def passArgs(self, form):
@@ -1099,24 +1099,24 @@ class VisualGng(Gng):
 		if positive_animation is None:
 			f.addInput("Positive animation angle", "positive_animation", warning="Please set this to an angle in degrees", unit="°")	
 		else:
-			f.addInput("Positive animation angle", "positive_animation", value=str(stim_length), unit="°")	
+			f.addInput("Positive animation angle", "positive_animation", value=str(positive_animation), unit="°")	
 			
 		if negative_animation is None:
 			f.addInput("Negative animation angle", "negative_animation", warning="Please set this to an angle in degrees", unit="°")	
 		else:
-			f.addInput("Negative animation angle", "negative_animation", value=str(stim_length), unit="°")	
+			f.addInput("Negative animation angle", "negative_animation", value=str(negative_animation), unit="°")	
 			
 		f.addLabel("<i>The default animation (0°) is left to right. Values set here will be added counter clockwise.</i>")
 		
 		if line_width is None:
 			f.addInput("Line width", "line_width", warning="Please set this to a width in pixels", unit="px")	
 		else:
-			f.addInput("Line width", "line_width", value=str(stim_length), unit="px")	
+			f.addInput("Line width", "line_width", value=str(line_width), unit="px")	
 
 		if line_speed is None:
 			f.addInput("Line speed", "line_speed", warning="Please set this to a speed in pixels/second", unit="px/sec")	
 		else:
-			f.addInput("Line speed", "line_speed", value=str(stim_length), unit="px/sec")			
+			f.addInput("Line speed", "line_speed", value=str(line_speed), unit="px/sec")			
 		
 		if stim_length is None:
 			f.addInput("Length", "stim_length", warning="Please set this to a time in seconds", unit="sec")	
