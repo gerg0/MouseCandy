@@ -7,16 +7,57 @@ import controlpanel
 
 cp = controlpanel.ControlPanel()
 cp.start_checking()
-
+project = None
 
 def wait_for_project():
-	while not os.path.isfile("run/project"):
+	while not os.path.isfile("run/project.mcp"):
 		if not cp.mode == "animation": cp.animation("Waiting...")
 		time.sleep(0.5)
-
+		
+	#Load the project from file
+	file = open("run/project.mcp", "rb")
+	global project
+	project = pickle.load(file)
+	file.close()
+	
+	
+	
+	cp.command = None
+	
+	cp.options = ["Start", "Details", "Cancel"]
+	cp.menu(title=project.name)
+	
+	time.sleep(0.5)
+	cp.refresh()
+	
+	wait_for_input()
+	
 def wait_for_input():
-	while cp.mode == "menu" and cp.command is None:
+	
+	while cp.command is None:
 		time.sleep(1)
+	print cp.command + " was selected"
+	
+	if cp.command == "Start":
+		project.run()
+		time.sleep(3)
+		cp.command = None
+		cp.options = ["Start", "Details", "Cancel"]
+		cp.menu(title=project.name)
+		wait_for_input()		
+		
+	
+	if cp.command == "Details":
+		cp.set_text(str(project))
+		while cp.command is not None:
+			time.sleep(0.5)
+		cp.options = ["Start", "Details", "Cancel"]
+		cp.menu(title=project.name)
+		wait_for_input()
+		
+	if cp.command == "Cancel":
+		os.remove("run/project.mcp")
+		wait_for_project()
 
 def refresh(selected):
 	lcd.home()
@@ -24,7 +65,7 @@ def refresh(selected):
 	lcd.message('\x03'+options[selected]+'   ')
 
 def cancel_project():
-	os.remove("run/project")
+	os.remove("run/project.mcp")
 
 def wait_for_user():
 	global options
@@ -77,16 +118,9 @@ def wait_for_user():
 def Main():
 
 	wait_for_project()
-	
-	#Load the project from file
-	file = open("run/project", "rb")
-	project = pickle.load(file)
-	file.close()
-	
-	cp.options = ["Start", "Details", "Cancel"]
-	cp.menu(title=project.name)
 
-	wait_for_input()
+
+	
 
 
 if __name__ == "__main__": Main()

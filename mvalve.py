@@ -8,7 +8,8 @@ class Valve(object):
 		self.pin = pin
 		self.inverted = inverted
 		self.pulse_length = pulse_length
-		self.set_close()
+		GPIO.setmode(GPIO.BCM)
+		#self.set_close()
 
 	def set_open(self):
 		if self.inverted:

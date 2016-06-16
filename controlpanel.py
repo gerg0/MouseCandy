@@ -35,8 +35,14 @@ class ControlPanel(object):
 		self.shift = 0
 	
 	def set_text(self, text):
+		self.current_line = 0
+		self.mode = "text"
 		self.text = text.split("\n")
 		if len(self.text) < 2: self.text.append("")
+
+		self.top_line = self.text[self.current_line]
+		self.bottom_line = self.text[self.current_line+1]
+		self.refresh()
 		
 	def display_text(self):
 		self.mode = "text"
@@ -78,16 +84,19 @@ class ControlPanel(object):
 			if right == 11: forward = True
 				
 	def menu(self, title=None):
-		selected = 5
+		self.selected = 0
+		self.current_line = 0
 		self.mode = "menu"
-		if title is not None: 
+		if title is not None:
 			self.options.insert(0,title)
-			selected = 1
+			self.selected = 1
+			self.top = 1
 		else:
-			selected = 0
+			self.top = 0
+			self.selected = 0
 		
-		self.top_line = [" ", "\x03"][selected==0]+self.options[0]
-		self.bottom_line = [" ", "\x03"][selected==1]+self.options[1]
+		self.top_line = [" ", "\x03"][self.selected==0]+self.options[0]
+		self.bottom_line = [" ", "\x03"][self.selected==1]+self.options[1]
 		
 		print self.top_line
 		print self.bottom_line
@@ -123,22 +132,51 @@ class ControlPanel(object):
 	
 	def up_buttonpress(self):
 		print "LCD up"
+
+		if self.mode == "menu":
+			if self.selected > 0:
+				self.selected -= 1
+				
+			if self.selected < self.current_line:
+				self.current_line -= 1
+				
+			if self.selected < self.top:
+				self.selected = self.top
+				
+			self.top_line = [" ", "\x03"][self.selected==self.current_line]+self.options[self.current_line]
+			self.bottom_line = [" ", "\x03"][self.selected==self.current_line+1]+self.options[self.current_line+1]
+			self.refresh()
+			
+			#print "Current: " + str(self.current_line)
+			#print "Selected: " + str(self.selected)
+		
 		if self.mode == "text":
 			if self.current_line > 0:
 				self.current_line -= 1
 				self.top_line = self.text[self.current_line]
 				self.bottom_line = self.text[self.current_line+1]
 				self.refresh()
+				
+
 	
 	def down_buttonpress(self):
 		print "LCD down"
 		if self.mode == "menu":
-			if self.current_line < len(self.options)-2:
-				self.current_line += 1
-				self.top_line = self.text[self.current_line]
-				self.bottom_line = self.text[self.current_line+1]
-				self.refresh()
+
 				
+			if self.selected < len(self.options)-1:
+				self.selected += 1
+				
+			if self.selected > self.current_line+1:
+				self.current_line += 1
+				
+			self.top_line = [" ", "\x03"][self.selected==self.current_line]+self.options[self.current_line]
+			self.bottom_line = [" ", "\x03"][self.selected==self.current_line+1]+self.options[self.current_line+1]
+			self.refresh()
+		
+			#print "Current: " + str(self.current_line)
+			#print "Selected: " + str(self.selected)
+					
 		if self.mode == "text":
 			if self.current_line < len(self.text)-2:
 				self.current_line += 1
@@ -162,8 +200,11 @@ class ControlPanel(object):
 		
 	def select_buttonpress(self):
 		print "LCD select"
+		if self.mode == "menu":
+			self.command = self.options[self.selected]
+			
 		if self.mode == "text":
-			self.menu()
+			self.command = None
 	
 	def check_inputs(self):
 		#If UP is pressed

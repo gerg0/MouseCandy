@@ -15,6 +15,6 @@ print p.html()
 
 print '</fieldset>'
 
-file = open("run/project", 'wb')
+file = open("run/project.mcp", 'wb')
 pickle.dump(p, file)
 file.close()

@@ -184,6 +184,10 @@ class Pav(Project):
 					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)
 				time.sleep(0.001)
 		
+		
+		#Update progressbar
+		progress(100)
+		
 		#Log end of project
 		self.log.append((self.since_start.value(), self.since_stim.value(), "End"))
 		
@@ -200,8 +204,8 @@ class Pav(Project):
 		reaction_time_deviation = mtools.dev(reaction_times)
 		
 		#Create log files
-		main_logfile = open("running/log.txt", "w")
-		licks_logfile = open("running/licks.csv", "w")
+		main_logfile = open("run/log.txt", "w")
+		licks_logfile = open("run/licks.csv", "w")
 		
 		#Write logfile headers
 		main_logfile.write(str(self)+"\n")
@@ -221,6 +225,23 @@ class Pav(Project):
 		
 		main_logfile.close()
 		licks_logfile.close()
+		
+		import os
+		zipname = mtools.CRC32_from_file("run/log.txt")
+		os.system("zip -j logs/"+zipname+".zip run/log.txt run/licks.csv")
+		os.remove("run/log.txt")
+		os.remove("run/licks.csv")
+		
+		os.system("zipnote logs/"+zipname+".zip > logs/temp_notes.txt")
+		
+		notesfile = open("logs/temp_notes.txt", "a")
+		tags = str(self).split("\n")
+		tags = tags[0]
+		notesfile.write(tags+"\n")
+		notesfile.write(self.name)
+		notesfile.close()
+		
+		os.system("zipnote -w logs/"+zipname+".zip < logs/temp_notes.txt")
 		
 	@staticmethod
 	def showForm(stim_type="audio", action_count=100, wait_time_min=45.0, wait_time_max=60.0, parent=None):
@@ -288,6 +309,8 @@ class OlfactoryPav(Pav):
 		form.addArgPass(self.stim_length, "stim_length")	
 	
 	def run(self):
+		import mvalve
+		import mconfig
 		ovalve = mvalve.Valve(mconfig.odor_pin[self.odor_valve_name], pulse_length = self.stim_length)
 		bvalve = mvalve.Valve(mconfig.odor_pin[self.blank_valve],pulse_length=self.stim_length)
 		
@@ -589,11 +612,11 @@ class Gng(Project):
 		tasks = []
 		
 		#Put tasks with positive stimulus onto the todo list
-		for i in range(project.positive_count):
+		for i in range(self.positive_count):
 			tasks.append(True)
 			
 		#Put tasks with negative stimulus onto the todo list
-		for i in range(project.negative_count):
+		for i in range(self.negative_count):
 			tasks.append(False)
 
 		#Execute tastks at random order
@@ -614,17 +637,17 @@ class Gng(Project):
 			
 			#Stimulus
 			self.since_stim.reset()
-			if task:
+			if current_task:
 				print "Positive stimulus"
 				log.append((self.since_start.value(), self.since_stim.value(),"Positive stimulus"))
 				self.positive_stimulus()
 			else: 
 				print "Negative stimulus"
-				log.append((self.since_start.value(), self.since_stim.value(),"Negative stimulus"))
+				self.log.append((self.since_start.value(), self.since_stim.value(),"Negative stimulus"))
 				self.negative_stimulus()
 
 			#Grace period
-			time.sleep(project.grace_preiod)
+			time.sleep(self.grace_preiod)
 			
 			#Wait until the stim is over. Detect premature licks.
 			self.stim_timer.reset()
@@ -636,12 +659,12 @@ class Gng(Project):
 				time.sleep(0.001)
 			
 			#Idle period
-			eof_idle = time.time()+self.default_time
+			eof_idle = time.time()+self.idle_period
 			while time.time() < eof_idle:
 				if (GPIO.input(mconfig.sensor_pin)==1) and sensor_active:
 					sensor_active = False
 					print "Lick in idle phase"
-					log.append((time.time()-start_time,"Random action ("+str(project.random_extra_time)+" sec)"))
+					self.log.append((time.time()-start_time,"Random action ("+str(self.random_extra_time)+" sec)"))
 					time.sleep(project.random_extra_time)
 				
 				if (GPIO.input(mconfig.sensor_pin)==0) and not sensor_active:
