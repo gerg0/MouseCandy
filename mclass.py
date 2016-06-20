@@ -288,7 +288,7 @@ class OlfactoryPav(Pav):
 		self.stim_length = stim_length
 		
 	def __str__(self):
-		return "[OlfactoryPav] " + super(OlfactoryPav,self).__str__() + \
+		return "[Olfactory] " + super(OlfactoryPav,self).__str__() + \
 			"\nOdor valve: " + self.odor_valve_name + \
 			"\nBlank valve: " + self.blank_valve + \
 			"\nStim length: " + str(self.stim_length) +" sec"
@@ -380,7 +380,7 @@ class AudioPav(Pav):
 
 	
 	def __str__(self):
-		return "[AudioPav] " + super(AudioPav,self).__str__() + \
+		return "[Audio] " + super(AudioPav,self).__str__() + \
 			"\nPositive tone: " + self.tone_text + \
 			"\nStim length: " + str(self.stim_length) +" sec"
 			
@@ -468,7 +468,7 @@ class VisualPav(Pav):
 		self.stim_length = stim_length
 	
 	def __str__(self):
-		return "[VisualPav] " + super(VisualPav, self).__str__() + \
+		return "[Visual] " + super(VisualPav, self).__str__() + \
 			"\nAnimation angle: " +  str(self.animation_angle) +"°"+ \
 			"\nLine width: " +  str(self.line_width) + " px" + \
 			"\nLine speed: " +  str(self.line_speed) + " px/sec" + \
@@ -950,7 +950,7 @@ class AudioGng(Gng):
 		
 
 	def __str__(self):		
-		return "[AudioGng] " + super(AudioGng,self).__str__() + \
+		return "[Audio] " + super(AudioGng,self).__str__() + \
 			"\nPositive tone: " + self.pos_tone_text + \
 			"\nNegative tone: " + self.neg_tone_text + \
 			"\nStim length: " + str(self.stim_length) +" sec"
@@ -1086,7 +1086,7 @@ class VisualGng(Gng):
 		self.stim_length = stim_length
 	
 	def __str__(self):
-		return "[VisualGng] " + super(VisualGng, self).__str__() + \
+		return "[Visual] " + super(VisualGng, self).__str__() + \
 			"\nNegative animation angle: " +  str(self.negative_animation) +"°"+ \
 			"\nPositive animation angle: " +  str(self.positive_animation) +"°"+ \
 			"\nLine width: " +  str(self.line_width) + " px" + \
