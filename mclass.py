@@ -242,6 +242,7 @@ class Pav(Project):
 		notesfile.close()
 		
 		os.system("zipnote -w logs/"+zipname+".zip < logs/temp_notes.txt")
+		os.remove("logs/temp_notes.txt")
 		
 	@staticmethod
 	def showForm(stim_type="audio", action_count=100, wait_time_min=45.0, wait_time_max=60.0, parent=None):
