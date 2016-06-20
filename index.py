@@ -6,7 +6,7 @@ import pickle
 mcgi.frame()
 if os.path.isfile("run/project"):
 	
-	file = open("run/project", "rb")
+	file = open("run/project.mcp", "rb")
 	project = pickle.load(file)
 	file.close()
 	

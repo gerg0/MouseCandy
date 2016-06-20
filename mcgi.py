@@ -57,6 +57,9 @@ def save_button(project):
 def dummy_button(text):
 	print '<button type="button" disabled>'+text+'</button>'
 
+def quickCheckbox(name, value="del"):
+	return ('<input type="checkbox" name="'+name+'" value="'+value+'">')
+
 class Form(list):
 	def __init__(self, action, method="post", buttontext="Next"):
 		super(list,self).__init__()
@@ -148,3 +151,4 @@ class Form(list):
 			checked = ""
 		self.append('<p><input type="checkbox" name="'+name+'" value="'+value+'" '+checked+'> '+title+hint+'</p>')
 		
+

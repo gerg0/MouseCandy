@@ -497,9 +497,20 @@ class VisualPav(Pav):
 		
 	def run(self):
 		
-		from subprocess import call
+		#from subprocess import call
+		import os
 		
-		self.stimulus = lambda: call(["./visual_stim", self.animation_angle, self.line_width, self.line_speed])
+		print ("visual_stim "+ \
+								str(self.animation_angle) +" "+\
+								str(self.line_width) +" "+\
+								str(self.line_speed) +" "+\
+								str(self.stim_length))
+		
+		self.stimulus = lambda: os.system("./visual_stim "+ \
+								str(self.animation_angle) +" "+\
+								str(self.line_width) +" "+\
+								str(self.line_speed) +" "+\
+								str(self.stim_length))
 		
 		#Run Pavlovian conditioning with the animation as the stimulus
 		super(VisualPav,self).run()
