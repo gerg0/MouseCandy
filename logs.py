@@ -51,10 +51,10 @@ def getkey(custom): return custom.ctime
 logfiles = sorted(logfiles, key=getkey, reverse=True)
 
 
-print('<form action="logs.py" method="get">')
+print('<form action="logs.py" method="post">')
 
 
-print ('<table style="width:99%">')
+print ('<table style="width:90%">')
 print ('<tr>')
 print ('<td><b>   </b></td>')
 print ('<td><b>File</b></td>')
