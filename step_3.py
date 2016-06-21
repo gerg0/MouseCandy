@@ -40,7 +40,7 @@ if err:
 		mclass.Gng.showForm(stim_type=fvalues.stim_type, \
 							action_count=fvalues.action_count, \
 							positive_count=fvalues.positive_count, \
-							grace_preiod=fvalues.grace_preiod, \
+							grace_preiod=fvalues.grace_period, \
 							active_period=fvalues.active_period, \
 							idle_period=fvalues.idle_period, \
 							extra_time=fvalues.extra_time, \

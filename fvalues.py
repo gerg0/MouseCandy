@@ -33,7 +33,7 @@ wait_time_max = getFloat("wait_time_max")
 positive_count = getInt("positive_count")
 
 active_period = getFloat("active_period")
-grace_preiod = getFloat("grace_preiod")
+grace_preiod = getFloat("grace_period")
 idle_period = getFloat("idle_period")
 
 extra_time = getFloat("extra_time")

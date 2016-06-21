@@ -5,6 +5,9 @@ import pickle
 import mclass
 import controlpanel
 
+import mconfig
+mconfig.GPIO_init()
+
 cp = controlpanel.ControlPanel()
 cp.start_checking()
 project = None

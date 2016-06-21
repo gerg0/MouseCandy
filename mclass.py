@@ -148,16 +148,18 @@ class Pav(Project):
 			
 			#Log the stimulus
 			self.log.append((self.since_start.value(), 0, "Stimulus"))
-			print "Tone at	"+ str(self.since_start)
+			print "Stimulus at	"+ str(self.since_start)
 
 			#Wait until the stim is over. Detect premature licks.
 			self.stim_timer.reset()
 			while self.stim_timer.is_running():
+				time.sleep(0.001)
+				
 				if self.sensor.detected():
 					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick (premature)"))
 					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)+ " //Premature"
 					
-				time.sleep(0.001)
+				
 				
 			#Give water
 			self.water_valve.pulse()	
@@ -179,10 +181,12 @@ class Pav(Project):
 			
 			#Wait until next stim. Log licks
 			while self.main_timer.is_running():
+				time.sleep(0.001)
+				
 				if self.sensor.detected():
 					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick"))
 					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)
-				time.sleep(0.001)
+				
 		
 		
 		#Update progressbar
@@ -202,6 +206,7 @@ class Pav(Project):
 		#Calculate lick statistics
 		average_reaction_time = mtools.avg(reaction_times)
 		reaction_time_deviation = mtools.dev(reaction_times)
+		
 		
 		#Create log files
 		main_logfile = open("run/log.txt", "w")
@@ -226,6 +231,7 @@ class Pav(Project):
 		main_logfile.close()
 		licks_logfile.close()
 		
+		#Create zipfiles
 		import os
 		zipname = mtools.CRC32_from_file("run/log.txt")
 		os.system("zip -j logs/"+zipname+".zip run/log.txt run/licks.csv")
@@ -498,7 +504,7 @@ class VisualPav(Pav):
 	def run(self):
 		
 		#from subprocess import call
-		import os
+		import manimation
 		
 		print ("visual_stim "+ \
 								str(self.animation_angle) +" "+\
@@ -506,11 +512,9 @@ class VisualPav(Pav):
 								str(self.line_speed) +" "+\
 								str(self.stim_length))
 		
-		self.stimulus = lambda: os.system("./visual_stim "+ \
-								str(self.animation_angle) +" "+\
-								str(self.line_width) +" "+\
-								str(self.line_speed) +" "+\
-								str(self.stim_length))
+		animation = manimation.Animation(self.animation_angle, self.line_width, self.line_speed, self.stim_length)
+		
+		self.stimulus = lambda: animation.play()
 		
 		#Run Pavlovian conditioning with the animation as the stimulus
 		super(VisualPav,self).run()
@@ -554,7 +558,7 @@ class VisualPav(Pav):
 class Gng(Project):
 	
 	def __init__(self, name, notes, video, \
-			action_count, positive_count, grace_preiod, active_period, idle_period, extra_time, reset_on_random):
+			action_count, positive_count, grace_period, active_period, idle_period, extra_time, reset_on_random):
 			
 		super(Gng,self).__init__(name, notes, video)
 
@@ -562,7 +566,7 @@ class Gng(Project):
 		self.positive_count = positive_count
 		self.negative_count = int(self.action_count) - int(self.positive_count)
 		
-		self.grace_preiod = grace_preiod
+		self.grace_period = grace_period
 		self.active_period = active_period
 		self.idle_period = idle_period
 		
@@ -576,7 +580,7 @@ class Gng(Project):
 			"\nAction count: "+str(self.action_count) + \
 			"\nPositive count: "+str(self.positive_count) + \
 			"\nNegative count: "+str(self.negative_count) + \
-			"\nGrace period: " + str(self.grace_preiod) +" sec" + \
+			"\nGrace period: " + str(self.grace_period) +" sec" + \
 			"\nActive period: " + str(self.active_period) +" sec" + \
 			"\nIdle period: " + str(self.idle_period) +" sec" + \
 			"\nExtra time for wrong action: " + str(self.extra_time) +" sec" + \
@@ -589,7 +593,7 @@ class Gng(Project):
 			"<br><b>Action count: </b>"+str(self.action_count) +\
 			"<br><b>Positive count: </b>"+str(self.positive_count) +\
 			"<br><b>Negative count: </b>"+str(self.negative_count) +\
-			"<br><b>Grace period: </b>" + str(self.grace_preiod) +" sec" +\
+			"<br><b>Grace period: </b>" + str(self.grace_period) +" sec" +\
 			"<br><b>Active period: </b>" + str(self.active_period) +" sec" +\
 			"<br><b>Idle period: </b>" + str(self.idle_period) +" sec" +\
 			"<br><b>Extra time for wrong action: </b>" + str(self.extra_time) +" sec" +\
@@ -604,7 +608,7 @@ class Gng(Project):
 		form.addArgPass(self.positive_count, "positive_count")
 		
 		form.addArgPass(self.active_period, "active_period")
-		form.addArgPass(self.grace_preiod, "grace_preiod")
+		form.addArgPass(self.grace_period, "grace_period")
 		form.addArgPass(self.idle_period, "idle_period")
 		
 		form.addArgPass(self.extra_time, "extra_time")		
@@ -618,7 +622,11 @@ class Gng(Project):
 		from progressbar import progress
 		from mtools import Timer
 		
-		active_timer = Timer(self.stim_length+2)
+		active_timer = Timer(self.active_period)
+		grace_timer = Timer(self.grace_period)
+		idle_timer = Timer(self.idle_period)
+		
+		punish_timer = Timer(self.extra_time)
 		
 		#Todo list
 		tasks = []
@@ -647,75 +655,138 @@ class Gng(Project):
 			#Update progressbar
 			progress(current_task_count*100/len(tasks))
 			
-			#Stimulus
+			#Reset since stim start stopper
 			self.since_stim.reset()
+			
+			#Timer that runs until the end of the stimulus. Reset here.
+			self.stim_timer.reset()
+			
+			#Give Stimulus
 			if current_task:
 				print "Positive stimulus"
-				log.append((self.since_start.value(), self.since_stim.value(),"Positive stimulus"))
+				self.log.append((self.since_start.value(), self.since_stim.value(),"Positive stimulus"))
 				self.positive_stimulus()
 			else: 
 				print "Negative stimulus"
 				self.log.append((self.since_start.value(), self.since_stim.value(),"Negative stimulus"))
 				self.negative_stimulus()
-
-			#Grace period
-			time.sleep(self.grace_preiod)
+					
 			
 			#Wait until the stim is over. Detect premature licks.
-			self.stim_timer.reset()
 			while self.stim_timer.is_running():
-				if self.sensor.detected():
-					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick (premature)"))
-					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)+ " //Premature"
-					
 				time.sleep(0.001)
-			
-			#Idle period
-			eof_idle = time.time()+self.idle_period
-			while time.time() < eof_idle:
-				if (GPIO.input(mconfig.sensor_pin)==1) and sensor_active:
-					sensor_active = False
-					print "Lick in idle phase"
-					self.log.append((time.time()-start_time,"Random action ("+str(self.random_extra_time)+" sec)"))
-					time.sleep(project.random_extra_time)
 				
-				if (GPIO.input(mconfig.sensor_pin)==0) and not sensor_active:
-					sensor_active = True
+				if self.sensor.detected():
+					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)+ " //During stimulus"
+					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick (during stimulus)"))
 			
-
+			#Grace period
+			grace_timer.reset()
+			while grace_timer.is_running():
+				time.sleep(0.001)
+				if self.sensor.detected():
+					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)+ " //In grace period"
+					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick (in grace period)"))				
+						
+				
+			
+			#Task is considered done if we already gave water
+			done = False
 			
 			#Active period
-			done = False
-			eof_active = time.time()+project.stim_length+4 #Wait 2 extra second	s after the stimulus is over.
-			
-			while time.time() < eof_active:	
-				#if not done:
-				if (GPIO.input(mconfig.sensor_pin)==1) and not done:
-					done = True
-					print "Lick "+str(time.time()-start_time)
-					log.append((time.time()-start_time,"Lick"))
+			active_timer.reset()
+			while active_timer.is_running():
+				time.sleep(0.001)
+
+				if self.sensor.detected():
 					
-					if task:
-						print "Giving water"
-						log.append((time.time()-start_time, "Drink"))
-						drink()
-	
-					if not task:
-						print "Punishing with time delay"
-						log.append((time.time()-start_time, "Punishment delay ("+str(project.extra_time)+" sec)"))
-						time.sleep(project.extra_time)
-						log.append((time.time()-start_time, "Punishment over"))
+					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)
+					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick"))
+					
+					
+					if not done:
+						done = True
+						
+						if current_task:
+							print "Giving water"
+							self.log.append((self.since_start.value(), self.since_stim.value(), "Water"))
+							
+							#Give water
+							self.water_valve.pulse()
+		
+						if not current_task:
+							print "Punishment start " + str(self.extra_time) +" sec"
+							self.log.append((self.since_start.value(), self.since_stim.value(), "Punishment delay started"))
+							
+							
+							#Punishment period
+							punish_timer.reset()
+							while punish_timer.is_running():
+								time.sleep(0.001)
+								if self.sensor.detected():
+									print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)+ " //During punishment"
+									self.log.append((self.since_start.value(), self.since_stim.value(), "Lick (during punishment)"))				
+						
+							
+							print "Punishment over"
+							self.log.append((self.since_start.value(), self.since_stim.value(), "Punishment delay over"))
 
 
+						
+			#Idle period
+			idle_timer.reset()
+			while idle_timer.is_running():
+				time.sleep(0.001)
+				if self.sensor.detected():
+					print "Lick at	" + str(self.since_start) +"	Since stim.	" +str(self.since_stim)+ " //In idle phase"
+					self.log.append((self.since_start.value(), self.since_stim.value(), "Lick (in idle phase)"))
+					
+					if self.reset_on_random == "on":
+						print "Idle phase starts over"
+						idle_timer.reset()
 
 			current_task_count += 1
 		
 		
-		log.append((time.time()-start_time,"End"))		
+		self.log.append((self.since_start.value(), self.since_stim.value(), "End"))	
+	
+		
+		#Create log file
+		main_logfile = open("run/log.txt", "w")
+		
+		#Write logfile header
+		main_logfile.write(str(self)+"\n\n")
+		#main_logfile.write("Since start	Since stim.	Log entry\n\n")
+		
+		#Write records into log files
+		for record in self.log:
+			main_logfile.write(mtools.toString(record[0])+"	"+mtools.toString(record[1])+"	"+record[2]+"\n")
+			
+		#Close logfile
+		main_logfile.close()
+	
+	
+		#Create zip file
+		import os
+		zipname = mtools.CRC32_from_file("run/log.txt")
+		os.system("zip -j logs/"+zipname+".zip run/log.txt")
+		os.remove("run/log.txt")
+		
+		os.system("zipnote logs/"+zipname+".zip > logs/temp_notes.txt")
+		
+		notesfile = open("logs/temp_notes.txt", "a")
+		tags = str(self).split("\n")
+		tags = tags[0]
+		notesfile.write(tags+"\n")
+		notesfile.write(self.name)
+		notesfile.close()
+		
+		os.system("zipnote -w logs/"+zipname+".zip < logs/temp_notes.txt")
+		os.remove("logs/temp_notes.txt")
 	
 	@staticmethod
 	def showForm(stim_type="olfactory", action_count=30, positive_count=15, \
-			grace_preiod=0.2, active_period=2.5, idle_period=3.0, extra_time=2.0, reset_on_random="on", parent=None):
+			grace_period=0.2, active_period=2.5, idle_period=3.0, extra_time=2.0, reset_on_random="on", parent=None):
 
 		f = mcgi.Form("step_3.py")
 		
@@ -765,13 +836,13 @@ class Gng(Project):
 				warning="Please set this to a number (integer)", \
 				hint="#of negative stimuli will be calculated")		
 
-		#Display error message if grace_preiod is NaN		
-		if grace_preiod is None:
-			f.addInput("Grace period ", "grace_preiod", \
+		#Display error message if grace_period is NaN		
+		if grace_period is None:
+			f.addInput("Grace period ", "grace_period", \
 				warning="Please set this to a time in seconds", unit="sec", \
 				hint="Time period after stimulus in which all actions are ignored.")	
 		else:
-			f.addInput("Grace period ", "grace_preiod", value=grace_preiod, unit="sec", \
+			f.addInput("Grace period ", "grace_period", value=grace_period, unit="sec", \
 				hint="Time period after stimulus in which all actions are ignored.")
 		
 		#Display error message if active_period is NaN
@@ -826,11 +897,11 @@ class Gng(Project):
 class OlfactoryGng(Gng):
 
 	def __init__ (self, name, notes, video, \
-			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random, \
+			action_count, positive_count, active_period, grace_period, idle_period, extra_time, reset_on_random, \
 			positive_valve, negative_valve, blank_valve, stim_length):
 			
 		super(OlfactoryGng, self).__init__(name, notes, video, \
-			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random)
+			action_count, positive_count, active_period, grace_period, idle_period, extra_time, reset_on_random)
 		self.positive_valve = positive_valve
 		self.negative_valve = negative_valve
 		self.blank_valve = blank_valve
@@ -932,11 +1003,11 @@ class OlfactoryGng(Gng):
 class AudioGng(Gng):
 
 	def __init__(self, name, notes, video, \
-			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random,\
+			action_count, positive_count, active_period, grace_period, idle_period, extra_time, reset_on_random,\
 			positive_tone_hz, positive_tone_type, negative_tone_hz, negative_tone_type, stim_length):
 			
 		super(AudioGng, self).__init__(name, notes, video, \
-			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random)
+			action_count, positive_count, active_period, grace_period, idle_period, extra_time, reset_on_random)
 			
 		self.positive_tone_hz = positive_tone_hz
 		self.positive_tone_type = positive_tone_type
@@ -1083,11 +1154,11 @@ class AudioGng(Gng):
 	
 class VisualGng(Gng):
 	def __init__ (self, name, notes, video, \
-			action_count, positive_count, grace_preiod, active_period, idle_period, extra_time, reset_on_random, \
+			action_count, positive_count, grace_period, active_period, idle_period, extra_time, reset_on_random, \
 			positive_animation, negative_animation, line_width, line_speed, stim_length):
 	
 		super(VisualGng, self).__init__(name, notes, video, \
-			action_count, positive_count, active_period, grace_preiod, idle_period, extra_time, reset_on_random)
+			action_count, positive_count, active_period, grace_period, idle_period, extra_time, reset_on_random)
 			
 		self.positive_animation = positive_animation
 		self.negative_animation = negative_animation
