@@ -13,12 +13,12 @@ cp.start_checking()
 project = None
 
 def wait_for_project():
-	while not os.path.isfile("run/project.mcp"):
+	while not os.path.isfile("/MouseCandy/run/project.mcp"):
 		if not cp.mode == "animation": cp.animation("Waiting...")
 		time.sleep(0.5)
 		
 	#Load the project from file
-	file = open("run/project.mcp", "rb")
+	file = open("/MouseCandy/run/project.mcp", "rb")
 	global project
 	project = pickle.load(file)
 	file.close()
@@ -59,7 +59,7 @@ def wait_for_input():
 		wait_for_input()
 		
 	if cp.command == "Cancel":
-		os.remove("run/project.mcp")
+		os.remove("/MouseCandy/run/project.mcp")
 		wait_for_project()
 
 def refresh(selected):
@@ -68,7 +68,7 @@ def refresh(selected):
 	lcd.message('\x03'+options[selected]+'   ')
 
 def cancel_project():
-	os.remove("run/project.mcp")
+	os.remove("/MouseCandy/run/project.mcp")
 
 def wait_for_user():
 	global options

@@ -12,13 +12,13 @@ class Template(object):
 		
 		self.filename = filename
 		
-		self.ctime_str = time.ctime(os.path.getctime("templates/"+filename))	#Gets file creation time to a standard string
+		self.ctime_str = time.ctime(os.path.getctime("/MouseCandy/templates/"+filename))	#Gets file creation time to a standard string
 		self.ctime = time.strptime(self.ctime_str)								#Convers string to stucture	
 		
 		self.ctime_date = time.strftime("%Y.%m.%d.", self.ctime)				#Gets formatted date
 		self.ctime_time = time.strftime("%H:%M:%S", self.ctime)					#Gets formatted time
 		
-		file = open("templates/"+filename, 'rb')
+		file = open("/MouseCandy/templates/"+filename, 'rb')
 		project = pickle.load(file)
 		file.close()
 		
@@ -38,14 +38,14 @@ class Template(object):
 
 mcgi.frame()
 form = cgi.FieldStorage()
-for templatefile in os.listdir("templates/"): 
+for templatefile in os.listdir("/MouseCandy/templates/"): 
 	if form.getvalue(templatefile) == "del":
 		print ('<p>'+templatefile+" deleted</p>")
-		os.remove("templates/"+templatefile)
+		os.remove("/MouseCandy/templates/"+templatefile)
 
 
 templatefiles = []
-for filename in os.listdir("templates/"): templatefiles.append(Template(filename))
+for filename in os.listdir("/MouseCandy/templates/"): templatefiles.append(Template(filename))
 def getkey(custom): return custom.ctime
 templatefiles = sorted(templatefiles, key=getkey, reverse=True)
 

@@ -24,7 +24,7 @@ class MSound():
 
 
 def sound (filename, freq, sound_type, length):
-	filename = "running/"+filename+".wav"
+	filename = "/MouseCandy/run/"+filename+".wav"
 	system("sox -n -b 16 "+filename+" synth "+str(length)+" "+sound_type+" "+str(freq))
 	#mixer.init()
 	return mixer.Sound(filename)

@@ -14,13 +14,13 @@ class Logfile(object):
 		
 		self.filename = filename
 		
-		self.ctime_str = time.ctime(os.path.getctime("logs/"+filename))	#Gets file creation time to a standard string
+		self.ctime_str = time.ctime(os.path.getctime("/MouseCandy/logs/"+filename))	#Gets file creation time to a standard string
 		self.ctime = time.strptime(self.ctime_str)						#Convers string to stucture	
 		
 		self.ctime_date = time.strftime("%Y.%m.%d.", self.ctime)		#Gets formatted date
 		self.ctime_time = time.strftime("%H:%M:%S", self.ctime)			#Gets formatted time
 		
-		self.zipobject = zipfile.ZipFile("logs/"+filename, 'r')
+		self.zipobject = zipfile.ZipFile("/MouseCandy/logs/"+filename, 'r')
 
 	def html(self):
 		print ('<tr>')
@@ -34,7 +34,7 @@ class Logfile(object):
 mcgi.frame()
 
 form = cgi.FieldStorage()
-for logfile in os.listdir("logs/"): 
+for logfile in os.listdir("/MouseCandy/logs/"): 
 	if form.getvalue(logfile) == "del":
 		print ('<p>'+logfile+" deleted</p>")
 		os.remove("logs/"+logfile)
@@ -46,7 +46,7 @@ for logfile in os.listdir("logs/"):
 
 
 logfiles = []
-for filename in os.listdir("logs/"): logfiles.append(Logfile(filename))
+for filename in os.listdir("/MouseCandy/logs/"): logfiles.append(Logfile(filename))
 def getkey(custom): return custom.ctime
 logfiles = sorted(logfiles, key=getkey, reverse=True)
 

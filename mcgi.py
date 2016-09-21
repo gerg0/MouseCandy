@@ -12,7 +12,7 @@ import os
 pwd = os.getcwd()
 
 def show(file):
-	with open('gui/'+file, 'r') as fin:
+	with open('/MouseCandy/gui/'+file, 'r') as fin:
 	    print fin.read()
 
 def passarg(var, name):

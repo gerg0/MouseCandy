@@ -209,8 +209,8 @@ class Pav(Project):
 		
 		
 		#Create log files
-		main_logfile = open("run/log.txt", "w")
-		licks_logfile = open("run/licks.csv", "w")
+		main_logfile = open("/MouseCandy/run/log.txt", "w")
+		licks_logfile = open("/MouseCandy/run/licks.csv", "w")
 		
 		#Write logfile headers
 		main_logfile.write(str(self)+"\n")
@@ -233,22 +233,22 @@ class Pav(Project):
 		
 		#Create zipfiles
 		import os
-		zipname = mtools.CRC32_from_file("run/log.txt")
-		os.system("zip -j logs/"+zipname+".zip run/log.txt run/licks.csv")
-		os.remove("run/log.txt")
-		os.remove("run/licks.csv")
+		zipname = mtools.CRC32_from_file("/MouseCandy/run/log.txt")
+		os.system("zip -j /MouseCandy/logs/"+zipname+".zip /MouseCandy/run/log.txt /MouseCandy/run/licks.csv")
+		os.remove("/MouseCandy/run/log.txt")
+		os.remove("/MouseCandy/run/licks.csv")
 		
-		os.system("zipnote logs/"+zipname+".zip > logs/temp_notes.txt")
+		os.system("zipnote /MouseCandy/logs/"+zipname+".zip > /MouseCandy/logs/temp_notes.txt")
 		
-		notesfile = open("logs/temp_notes.txt", "a")
+		notesfile = open("/MouseCandy/logs/temp_notes.txt", "a")
 		tags = str(self).split("\n")
 		tags = tags[0]
 		notesfile.write(tags+"\n")
 		notesfile.write(self.name)
 		notesfile.close()
 		
-		os.system("zipnote -w logs/"+zipname+".zip < logs/temp_notes.txt")
-		os.remove("logs/temp_notes.txt")
+		os.system("zipnote -w /MouseCandy/logs/"+zipname+".zip < /MouseCandy/logs/temp_notes.txt")
+		os.remove("/MouseCandy/logs/temp_notes.txt")
 		
 	@staticmethod
 	def showForm(stim_type="audio", action_count=100, wait_time_min=45.0, wait_time_max=60.0, parent=None):
@@ -752,7 +752,7 @@ class Gng(Project):
 	
 		
 		#Create log file
-		main_logfile = open("run/log.txt", "w")
+		main_logfile = open("/MouseCandy/run/log.txt", "w")
 		
 		#Write logfile header
 		main_logfile.write(str(self)+"\n\n")
@@ -768,21 +768,21 @@ class Gng(Project):
 	
 		#Create zip file
 		import os
-		zipname = mtools.CRC32_from_file("run/log.txt")
-		os.system("zip -j logs/"+zipname+".zip run/log.txt")
-		os.remove("run/log.txt")
+		zipname = mtools.CRC32_from_file("/MouseCandy/run/log.txt")
+		os.system("zip -j /MouseCandy/logs/"+zipname+".zip /MouseCandy/run/log.txt")
+		os.remove("/MouseCandy/run/log.txt")
 		
-		os.system("zipnote logs/"+zipname+".zip > logs/temp_notes.txt")
+		os.system("zipnote /MouseCandy/logs/"+zipname+".zip > /MouseCandy/logs/temp_notes.txt")
 		
-		notesfile = open("logs/temp_notes.txt", "a")
+		notesfile = open("/MouseCandy/logs/temp_notes.txt", "a")
 		tags = str(self).split("\n")
 		tags = tags[0]
 		notesfile.write(tags+"\n")
 		notesfile.write(self.name)
 		notesfile.close()
 		
-		os.system("zipnote -w logs/"+zipname+".zip < logs/temp_notes.txt")
-		os.remove("logs/temp_notes.txt")
+		os.system("zipnote -w /MouseCandy/logs/"+zipname+".zip < /MouseCandy/logs/temp_notes.txt")
+		os.remove("/MouseCandy/logs/temp_notes.txt")
 	
 	@staticmethod
 	def showForm(stim_type="olfactory", action_count=30, positive_count=15, \
