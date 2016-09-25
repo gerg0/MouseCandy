@@ -1,8 +1,8 @@
 #PIN CONFIG
 
 #Select input and output pins BCM
-i_pins = (4, 21)	
-o_pins = (27, 17, 22)
+i_pins = (4, 17, 27, 22)	
+o_pins = (24, 5)
 v_pins = (19, 16, 26, 20, 21)
 
 #The pin that the water valve is connected to.
@@ -17,13 +17,6 @@ odor_pin = {'A':v_pins[0], \
 
 #The pin that the lick sensor is connected to.
 sensor_pin = i_pins[0]
-
-#The pin that the positive stimulus is connected to.
-positive_pin = o_pins[2]
-
-#The pin that the negative stimulus is connected to.
-negative_pin = o_pins[0]
-
 
 #TIMES CONFIG
 
@@ -43,7 +36,7 @@ def GPIO_init():
 	import RPi.GPIO as GPIO
 	GPIO.setmode(GPIO.BCM)
 	for i in i_pins:
-		GPIO.setup(i, GPIO.IN)
+		GPIO.setup(i, GPIO.IN, GPIO.PUD_DOWN)
 			
 	for o in o_pins:
 		GPIO.setup(o, GPIO.OUT)
